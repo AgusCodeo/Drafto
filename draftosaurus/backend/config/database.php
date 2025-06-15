@@ -6,7 +6,7 @@ class Database {
     private $host = 'localhost';
     private $db_name = 'draftosaurus';
     private $username = 'root';
-    private $password = '';
+    private $password = 'draftosaurus123';
     private $conn;
 
     public function getConnection() {
