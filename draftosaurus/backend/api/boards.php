@@ -10,8 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once '../config/database.php';
-require_once '../models/ScoringEngine.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/ScoringEngine.php';
 
 // Get request method and endpoint
 $method = $_SERVER['REQUEST_METHOD'];
