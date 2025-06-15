@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draftosaurus - Juego de Mesa Digital</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🦕 Draftosaurus</h1>
+                <nav class="nav">
+                    <select id="languageSelect" class="language-select">
+                        <option value="es">Español</option>
+                        <option value="en">English</option>
+                    </select>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Welcome Screen -->
+            <section id="welcomeScreen" class="screen active">
+                <div class="welcome-content">
+                    <h2 data-es="Bienvenido a Draftosaurus" data-en="Welcome to Draftosaurus">Bienvenido a Draftosaurus</h2>
+                    <p data-es="Gestiona y juega partidas del emocionante juego de mesa familiar" data-en="Manage and play sessions of the exciting family board game">Gestiona y juega partidas del emocionante juego de mesa familiar</p>
+                    
+                    <div class="mode-selection">
+                        <div class="mode-card" data-mode="tracking">
+                            <h3 data-es="Modo Seguimiento" data-en="Tracking Mode">Modo Seguimiento</h3>
+                            <p data-es="Herramienta para contar puntos y validar reglas del juego físico" data-en="Tool to count points and validate rules of the physical game">Herramienta para contar puntos y validar reglas del juego físico</p>
+                            <button class="btn btn-primary" data-es="Iniciar Seguimiento" data-en="Start Tracking">Iniciar Seguimiento</button>
+                        </div>
+                        
+                        <div class="mode-card" data-mode="digital">
+                            <h3 data-es="Modo Juego Digital" data-en="Digital Game Mode">Modo Juego Digital</h3>
+                            <p data-es="Experiencia completa de juego digital con mecánicas de draft" data-en="Complete digital game experience with draft mechanics">Experiencia completa de juego digital con mecánicas de draft</p>
+                            <button class="btn btn-primary" data-es="Jugar Digital" data-en="Play Digital">Jugar Digital</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Player Setup Screen -->
+            <section id="playerSetupScreen" class="screen">
+                <div class="setup-content">
+                    <h2 data-es="Configuración de Jugadores" data-en="Player Setup">Configuración de Jugadores</h2>
+                    
+                    <div class="game-mode-info">
+                        <h3 id="selectedModeTitle">Modo Seguimiento</h3>
+                        <p id="selectedModeDescription">Herramienta para contar puntos y validar reglas del juego físico</p>
+                    </div>
+
+                    <div class="player-setup">
+                        <div class="input-group">
+                            <label for="gameName" data-es="Nombre del Juego:" data-en="Game Name:">Nombre del Juego:</label>
+                            <input type="text" id="gameName" placeholder="Mi partida de Draftosaurus">
+                        </div>
+
+                        <div class="players-section">
+                            <h4 data-es="Jugadores" data-en="Players">Jugadores</h4>
+                            <div id="playersList" class="players-list">
+                                <div class="player-input">
+                                    <input type="text" placeholder="Nombre del jugador 1" class="player-name" required>
+                                    <button class="btn-remove" style="display: none;">✕</button>
+                                </div>
+                            </div>
+                            <div class="players-controls">
+                                <button id="addPlayerBtn" class="btn btn-secondary" data-es="+ Agregar Jugador" data-en="+ Add Player">+ Agregar Jugador</button>
+                                <span class="player-count">1/5 jugadores</span>
+                            </div>
+                        </div>
+
+                        <div class="setup-actions">
+                            <button id="backToWelcomeBtn" class="btn btn-secondary" data-es="Volver" data-en="Back">Volver</button>
+                            <button id="startGameBtn" class="btn btn-primary" data-es="Comenzar Juego" data-en="Start Game">Comenzar Juego</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Game Board Screen -->
+            <section id="gameBoardScreen" class="screen">
+                <div class="game-content">
+                    <!-- Game Header -->
+                    <div class="game-header">
+                        <div class="game-info">
+                            <h2 id="currentGameName">Mi partida de Draftosaurus</h2>
+                            <div class="game-stats">
+                                <span id="gameMode">Modo Seguimiento</span>
+                                <span id="roundInfo">Ronda 1/2</span>
+                                <span id="turnInfo">Turno 1/6</span>
+                            </div>
+                        </div>
+                        <div class="game-controls">
+                            <button id="rollDiceBtn" class="btn btn-secondary" data-es="🎲 Lanzar Dado" data-en="🎲 Roll Dice">🎲 Lanzar Dado</button>
+                            <div id="diceResult" class="dice-result"></div>
+                        </div>
+                    </div>
+
+                    <!-- Players Tabs -->
+                    <div class="players-tabs">
+                        <div id="playersTabsList" class="tabs-list">
+                            <!-- Tabs will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Current Player Board -->
+                    <div id="currentPlayerBoard" class="player-board">
+                        <!-- Board will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Game Actions -->
+                    <div class="game-actions">
+                        <button id="calculateScoresBtn" class="btn btn-primary" data-es="Calcular Puntuaciones" data-en="Calculate Scores">Calcular Puntuaciones</button>
+                        <button id="endGameBtn" class="btn btn-secondary" data-es="Finalizar Juego" data-en="End Game">Finalizar Juego</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Screen -->
+            <section id="resultsScreen" class="screen">
+                <div class="results-content">
+                    <h2 data-es="🏆 Resultados Finales" data-en="🏆 Final Results">🏆 Resultados Finales</h2>
+                    <div id="finalScoreboard" class="scoreboard">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                    <div class="results-actions">
+                        <button id="newGameBtn" class="btn btn-primary" data-es="Nueva Partida" data-en="New Game">Nueva Partida</button>
+                        <button id="backToMenuBtn" class="btn btn-secondary" data-es="Menú Principal" data-en="Main Menu">Menú Principal</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p data-es="Cargando..." data-en="Loading...">Cargando...</p>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 data-es="Error" data-en="Error">Error</h3>
+            <p id="errorMessage"></p>
+            <button class="btn btn-primary" data-es="Cerrar" data-en="Close">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
