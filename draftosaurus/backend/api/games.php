@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once '../models/Game.php';
+require_once __DIR__ . '/../models/Game.php';
 
 // Get request method and endpoint
 $method = $_SERVER['REQUEST_METHOD'];
