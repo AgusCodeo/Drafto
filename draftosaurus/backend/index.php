@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 // Get request URI and parse the route
 $request_uri = $_SERVER['REQUEST_URI'];
