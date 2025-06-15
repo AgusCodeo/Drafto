@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draftosaurus - Pruebas de API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-section h2 {
+            color: #2E7D32;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .game-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        
+        .game-link:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🦕 Draftosaurus - Panel de Pruebas</h1>
+    
+    <div class="test-section">
+        <h2>🎮 Acceso al Juego</h2>
+        <p>Haz clic aquí para acceder a la aplicación principal de Draftosaurus:</p>
+        <a href="index.html" class="game-link">🚀 Iniciar Draftosaurus</a>
+    </div>
+
+    <div class="test-section">
+        <h2>🏥 Estado de la API</h2>
+        <button onclick="testHealth()">Verificar Estado</button>
+        <button onclick="testSpecies()">Cargar Especies</button>
+        <div id="healthResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>👥 Gestión de Usuarios</h2>
+        <input type="text" id="username" placeholder="Nombre de usuario" value="TestPlayer">
+        <input type="email" id="email" placeholder="Email" value="test@example.com">
+        <button onclick="createUser()">Crear Usuario</button>
+        <button onclick="listUsers()">Listar Usuarios</button>
+        <div id="userResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎲 Gestión de Juegos</h2>
+        <input type="text" id="gameName" placeholder="Nombre del juego" value="Juego de Prueba">
+        <select id="gameMode">
+            <option value="tracking">Modo Seguimiento</option>
+            <option value="digital">Modo Digital</option>
+        </select>
+        <input type="text" id="createdBy" placeholder="ID del creador">
+        <br>
+        <button onclick="createGame()">Crear Juego</button>
+        <button onclick="listGames()">Listar Juegos</button>
+        <button onclick="rollDice()">Lanzar Dado</button>
+        <div id="gameResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🏰 Tableros y Puntuación</h2>
+        <input type="text" id="gameId" placeholder="ID del juego">
+        <input type="text" id="userId" placeholder="ID del usuario">
+        <select id="dinosaurSpecies">
+            <option value="trex">T-Rex (Rojo)</option>
+            <option value="stegosaurus">Estegosaurio (Verde)</option>
+            <option value="triceratops">Triceratops (Azul)</option>
+            <option value="brachiosaurus">Braquiosaurio (Amarillo)</option>
+            <option value="pterodactyl">Pterodáctilo (Morado)</option>
+            <option value="velociraptor">Velociraptor (Naranja)</option>
+        </select>
+        <select id="penLocation">
+            <option value="forest_of_sameness">Bosque de Igualdad</option>
+            <option value="meadow_of_differences">Pradera de Diferencias</option>
+            <option value="prairie_of_love">Pradera del Amor</option>
+            <option value="woody_trio">Trío Arbolado</option>
+            <option value="king_of_jungle">Rey de la Jungla</option>
+            <option value="solitary_island">Isla Solitaria</option>
+            <option value="river">Río</option>
+        </select>
+        <br>
+        <button onclick="placeDinosaur()">Colocar Dinosaurio</button>
+        <button onclick="getBoard()">Ver Tablero</button>
+        <button onclick="calculateScores()">Calcular Puntuaciones</button>
+        <div id="boardResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Prueba Completa del Flujo</h2>
+        <p>Ejecuta una prueba completa del flujo del juego:</p>
+        <button onclick="runFullTest()">Ejecutar Prueba Completa</button>
+        <div id="fullTestResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let currentGameId = null;
+        let currentUsers = [];
+
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (data) options.body = JSON.stringify(data);
+            
+            try {
+                const response = await fetch(API_URL + endpoint, options);
+                const result = await response.json();
+                return { success: response.ok, data: result };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        function displayResult(elementId, result, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(result, null, 2);
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+        }
+
+        async function testHealth() {
+            const result = await apiCall('/health');
+            displayResult('healthResult', result, result.success);
+        }
+
+        async function testSpecies() {
+            const result = await apiCall('/species');
+            displayResult('healthResult', result, result.success);
+        }
+
+        async function createUser() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            
+            const result = await apiCall('/users', 'POST', { username, email });
+            displayResult('userResult', result, result.success);
+            
+            if (result.success) {
+                currentUsers.push(result.data);
+                document.getElementById('createdBy').value = result.data.user_id;
+                document.getElementById('userId').value = result.data.user_id;
+            }
+        }
+
+        async function listUsers() {
+            const result = await apiCall('/users');
+            displayResult('userResult', result, result.success);
+        }
+
+        async function createGame() {
+            const gameName = document.getElementById('gameName').value;
+            const gameMode = document.getElementById('gameMode').value;
+            const createdBy = document.getElementById('createdBy').value;
+            
+            const result = await apiCall('/games/create', 'POST', { 
+                game_name: gameName, 
+                game_mode: gameMode, 
+                created_by: createdBy 
+            });
+            
+            displayResult('gameResult', result, result.success);
+            
+            if (result.success) {
+                currentGameId = result.data.game_id;
+                document.getElementById('gameId').value = currentGameId;
+                
+                // Auto-join the creator
+                await apiCall('/games/join', 'POST', { 
+                    game_id: currentGameId, 
+                    user_id: createdBy 
+                });
+            }
+        }
+
+        async function listGames() {
+            const result = await apiCall('/games/list');
+            displayResult('gameResult', result, result.success);
+        }
+
+        async function rollDice() {
+            if (!currentGameId) {
+                displayResult('gameResult', { error: 'Primero crea un juego' }, false);
+                return;
+            }
+            
+            const result = await apiCall(`/games/roll-dice/${currentGameId}`, 'POST');
+            displayResult('gameResult', result, result.success);
+        }
+
+        async function placeDinosaur() {
+            const gameId = document.getElementById('gameId').value;
+            const userId = document.getElementById('userId').value;
+            const dinosaurSpecies = document.getElementById('dinosaurSpecies').value;
+            const penLocation = document.getElementById('penLocation').value;
+            
+            const result = await apiCall('/boards/place-dinosaur', 'POST', {
+                game_id: gameId,
+                user_id: userId,
+                dinosaur_species: dinosaurSpecies,
+                pen_location: penLocation
+            });
+            
+            displayResult('boardResult', result, result.success);
+        }
+
+        async function getBoard() {
+            const gameId = document.getElementById('gameId').value;
+            const userId = document.getElementById('userId').value;
+            
+            const result = await apiCall(`/boards/${gameId}/${userId}`);
+            displayResult('boardResult', result, result.success);
+        }
+
+        async function calculateScores() {
+            const gameId = document.getElementById('gameId').value;
+            
+            const result = await apiCall('/boards/calculate-scores', 'POST', { game_id: gameId });
+            displayResult('boardResult', result, result.success);
+        }
+
+        async function runFullTest() {
+            const testLog = [];
+            
+            try {
+                testLog.push('🏁 Iniciando prueba completa...\n');
+                
+                // 1. Crear usuarios
+                testLog.push('1. Creando usuarios...');
+                const user1 = await apiCall('/users', 'POST', { 
+                    username: 'Alice_' + Date.now(), 
+                    email: 'alice@test.com' 
+                });
+                const user2 = await apiCall('/users', 'POST', { 
+                    username: 'Bob_' + Date.now(), 
+                    email: 'bob@test.com' 
+                });
+                
+                if (!user1.success || !user2.success) {
+                    throw new Error('Error creando usuarios');
+                }
+                testLog.push('✅ Usuarios creados');
+                
+                // 2. Crear juego
+                testLog.push('2. Creando juego...');
+                const game = await apiCall('/games/create', 'POST', {
+                    game_name: 'Test Game ' + Date.now(),
+                    game_mode: 'tracking',
+                    created_by: user1.data.user_id
+                });
+                
+                if (!game.success) throw new Error('Error creando juego');
+                testLog.push('✅ Juego creado');
+                
+                // 3. Unir jugadores
+                testLog.push('3. Uniendo jugadores...');
+                await apiCall('/games/join', 'POST', {
+                    game_id: game.data.game_id,
+                    user_id: user1.data.user_id
+                });
+                await apiCall('/games/join', 'POST', {
+                    game_id: game.data.game_id,
+                    user_id: user2.data.user_id
+                });
+                testLog.push('✅ Jugadores unidos');
+                
+                // 4. Colocar dinosaurios
+                testLog.push('4. Colocando dinosaurios...');
+                
+                // Alice coloca 2 T-Rex en Forest of Sameness
+                await apiCall('/boards/place-dinosaur', 'POST', {
+                    game_id: game.data.game_id,
+                    user_id: user1.data.user_id,
+                    dinosaur_species: 'trex',
+                    pen_location: 'forest_of_sameness'
+                });
+                await apiCall('/boards/place-dinosaur', 'POST', {
+                    game_id: game.data.game_id,
+                    user_id: user1.data.user_id,
+                    dinosaur_species: 'trex',
+                    pen_location: 'forest_of_sameness'
+                });
+                
+                // Bob coloca 1 Stegosaurus en River
+                await apiCall('/boards/place-dinosaur', 'POST', {
+                    game_id: game.data.game_id,
+                    user_id: user2.data.user_id,
+                    dinosaur_species: 'stegosaurus',
+                    pen_location: 'river'
+                });
+                
+                testLog.push('✅ Dinosaurios colocados');
+                
+                // 5. Calcular puntuaciones
+                testLog.push('5. Calculando puntuaciones...');
+                const scores = await apiCall('/boards/calculate-scores', 'POST', {
+                    game_id: game.data.game_id
+                });
+                
+                if (!scores.success) throw new Error('Error calculando puntuaciones');
+                testLog.push('✅ Puntuaciones calculadas');
+                
+                // 6. Mostrar resultados
+                testLog.push('\n📊 RESULTADOS FINALES:');
+                testLog.push(`Alice: ${scores.data[user1.data.user_id].total_score} puntos`);
+                testLog.push(`Bob: ${scores.data[user2.data.user_id].total_score} puntos`);
+                testLog.push('\n🎉 ¡Prueba completa exitosa!');
+                
+                displayResult('fullTestResult', testLog.join('\n'), true);
+                
+            } catch (error) {
+                testLog.push(`\n❌ Error: ${error.message}`);
+                displayResult('fullTestResult', testLog.join('\n'), false);
+            }
+        }
+
+        // Initialize on page load
+        testHealth();
+    </script>
+</body>
+</html>
